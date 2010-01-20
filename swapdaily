@@ -1,0 +1,4 @@
+#!/bin/sh
+rm -rf /srv/www/openinkpot.org/htdocs/pub/daily/*
+rsync -ar 'ab:output/*/*' /srv/www/openinkpot.org/htdocs/pub/daily
+ssh ab rm -rf output
