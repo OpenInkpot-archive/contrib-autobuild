@@ -1,4 +1,30 @@
-#!/bin/sh
-rm -rf /srv/www/openinkpot.org/htdocs/pub/daily/*
-rsync -ar 'ab:output/*/*' /srv/www/openinkpot.org/htdocs/pub/daily
+#!/bin/bash
+set -e
+
+WORKDIR=$(mktemp)
+TARGETDIR=/srv/www/openinkpot.org/htdocs/pub/daily
+SUBJECT="OI: Daily builds report"
+RECIPIENT="dottedmag@dottedmag.net"
+
+send_mail(){
+	df -h >> $1
+	/usr/bin/mail $SUBJECT $RECIPIENT < $1
+}
+
+rsync -ar 'ab:output/*/*' $WORKDIR
 ssh ab rm -rf output
+
+if [ -a ${WORKDIR}/report ]; then
+	# if something was fetched at all
+	rm -rf ${TARGETDIR}/*
+	mv ${WORKDIR}/* $TARGETDIR
+	echo "Files were moved to pub/daily" >> ${TARGETDIR}/report
+	send_mail ${TARGETDIR}/report
+	rm -f ${TARGETDIR}/report
+else
+	# if fetching failed
+	cat "Fetching build files failed!" > ${WORKDIR}/report
+	send_mail
+fi
+
+rm -rf "$WORKDIR"
