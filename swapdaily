@@ -30,7 +30,7 @@ if [ -a ${WORKDIR}/report ]; then
 else
 	# if fetching failed
 	echo "Fetching build files failed!" > ${WORKDIR}/report
-	send_mail
+	send_mail ${WORKDIR}/report
 fi
 
 rm -rf "$WORKDIR"
