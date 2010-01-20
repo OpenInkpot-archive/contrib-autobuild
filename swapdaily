@@ -29,7 +29,7 @@ if [ -a ${WORKDIR}/report ]; then
 	rm -f ${TARGETDIR}/report
 else
 	# if fetching failed
-	cat "Fetching build files failed!" > ${WORKDIR}/report
+	echo "Fetching build files failed!" > ${WORKDIR}/report
 	send_mail
 fi
 
