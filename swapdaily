@@ -2,7 +2,7 @@
 set -e
 
 WORKDIR=$(mktemp -d)
-TARGETDIR=/srv/www/openinkpot.org/htdocs/pub/daily
+TARGETDIR=/srv/www/openinkpot.org/htdocs/pub/daily/
 SUBJECT="OI: Daily builds report"
 RECIPIENT="dottedmag@dottedmag.net"
 
@@ -44,7 +44,7 @@ if [ -a ${WORKDIR}/report ]; then
 	# if something was fetched at all
 	if [ -s ${WORKDIR}/report ]; then
 		#if there was no single build error
-		cd ${TARGETDIR} && rm -rf ./*
+		rm -f ${TARGETDIR}*
 		mv ${WORKDIR}/*.zip ${WORKDIR}/index.html $TARGETDIR
 		echo "Files were moved to pub/daily" >> ${WORKDIR}/report
 	else
