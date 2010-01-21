@@ -44,7 +44,7 @@ if [ -a ${WORKDIR}/report ]; then
 	# if something was fetched at all
 	if [ -s ${WORKDIR}/report ]; then
 		#if there was no single build error
-		rm -rf ${TARGETDIR}/*
+		cd ${TARGETDIR} && rm -rf ./*
 		mv ${WORKDIR}/*.zip ${WORKDIR}/index.html $TARGETDIR
 		echo "Files were moved to pub/daily" >> ${WORKDIR}/report
 	else
