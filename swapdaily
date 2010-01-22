@@ -4,7 +4,7 @@ set -e
 WORKDIR=$(mktemp -d)
 TARGETDIR=/srv/www/openinkpot.org/htdocs/pub/daily/
 SUBJECT="OI: Daily builds report"
-RECIPIENT="dottedmag@dottedmag.net"
+RECIPIENT="openinkpot-builds@openinkpot.org"
 
 send_mail(){
 	df -h >> ${WORKDIR}/report
@@ -21,20 +21,36 @@ cat <<EOF >index.html
 <meta http-equiv="Content-type" content="text/html;charset=UTF-8">
 </head>
 <h1>OpenInkpot's daily builds</h1>
-<table border="1">
-<tr><th>name</th><th>size</th><th>md5</th><th>sha1</th></tr>
 EOF
-	for col in $(ls *.zip); do
-		echo -n "<tr><td><a href=\"${col}\">${col}</a></td><td>" >> index.html
-		stat -c %s ${col} >> index.html
+	echo "<h2>Hanvon n516</h2>" >> index.html
+	table_group oi-hanvon-n516
+	echo "<h2>Hanlin v3/v3ext</h2>" >> index.html
+	table_group oi-hanlin-v3
+	echo "</html>" >> index.html
+}
+
+table_group(){
+	echo "<table border=\"1\">" >> index.html
+	echo "<tr><th>name</th><th>size</th><th>md5</th><th>sha1</th></tr>" >> index.html
+	table_rows $1
+	if [ "$1" == "oi-hanvon-n516" ]; then
+		echo "<tr><th colspan="4">Azbooka</th></tr>" >> index.html
+		table_rows azbooka
+	fi
+
+	echo "</table>" >> index.html
+}
+
+table_rows() {
+	for row in $(ls ${1}*.zip); do
+		echo -n "<tr><td><a href=\"${row}\">${row}</a></td><td>" >> index.html
+		stat -c %s ${row} >> index.html
 		echo -n "</td><td>" >> index.html
-		grep $col MD5SUMS | cut -d ' ' -f 1 >> index.html
+		grep $row MD5SUMS | cut -d ' ' -f 1 >> index.html
 		echo -n "</td><td>" >> index.html
-		grep $col SHA1SUMS | cut -d ' ' -f 1 >> index.html
+		grep $row SHA1SUMS | cut -d ' ' -f 1 >> index.html
 		echo -n "</td></tr>" >> index.html
 	done
-	echo "</table>" >> index.html
-	echo "</html>" >> index.html
 }
 
 rsync -ar 'ab:output/*/*' $WORKDIR
