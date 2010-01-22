@@ -8,6 +8,7 @@ RECIPIENT="openinkpot-builds@openinkpot.org"
 
 send_mail(){
 	df -h >> ${WORKDIR}/report
+	cat ${WORKDIR}/log >> ${WORKDIR}/report
 	mail $SUBJECT $RECIPIENT < ${WORKDIR}/report
 }
 
