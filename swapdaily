@@ -1,14 +1,57 @@
 #!/bin/bash
 set -e
 
-WORKDIR=$(mktemp)
-TARGETDIR=/srv/www/openinkpot.org/htdocs/pub/daily
+WORKDIR=$(mktemp -d)
+TARGETDIR=/srv/www/openinkpot.org/htdocs/pub/daily/
 SUBJECT="OI: Daily builds report"
-RECIPIENT="dottedmag@dottedmag.net"
+RECIPIENT="openinkpot-builds@openinkpot.org"
 
 send_mail(){
-	df -h >> $1
-	/usr/bin/mail $SUBJECT $RECIPIENT < $1
+	df -h >> ${WORKDIR}/report
+	cat ${WORKDIR}/log >> ${WORKDIR}/report
+	mail $SUBJECT $RECIPIENT < ${WORKDIR}/report
+}
+
+create_html(){
+	cd $WORKDIR
+cat <<EOF >index.html
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN"> 
+<html>
+<head>
+<title>OpenInkpot's daily builds</title>
+<meta http-equiv="Content-type" content="text/html;charset=UTF-8">
+</head>
+<h1>OpenInkpot's daily builds</h1>
+EOF
+	echo "<h2>Hanvon n516</h2>" >> index.html
+	table_group oi-hanvon-n516
+	echo "<h2>Hanlin v3/v3ext</h2>" >> index.html
+	table_group oi-hanlin-v3
+	echo "</html>" >> index.html
+}
+
+table_group(){
+	echo "<table border=\"1\">" >> index.html
+	echo "<tr><th>name</th><th>size</th><th>md5</th><th>sha1</th></tr>" >> index.html
+	table_rows $1
+	if [ "$1" == "oi-hanvon-n516" ]; then
+		echo "<tr><th colspan="4">Azbooka</th></tr>" >> index.html
+		table_rows azbooka
+	fi
+
+	echo "</table>" >> index.html
+}
+
+table_rows() {
+	for row in $(ls ${1}*.zip); do
+		echo -n "<tr><td><a href=\"${row}\">${row}</a></td><td>" >> index.html
+		stat -c %s ${row} >> index.html
+		echo -n "</td><td>" >> index.html
+		grep $row MD5SUMS | cut -d ' ' -f 1 >> index.html
+		echo -n "</td><td>" >> index.html
+		grep $row SHA1SUMS | cut -d ' ' -f 1 >> index.html
+		echo -n "</td></tr>" >> index.html
+	done
 }
 
 rsync -ar 'ab:output/*/*' $WORKDIR
@@ -18,15 +61,14 @@ if [ -a ${WORKDIR}/report ]; then
 	# if something was fetched at all
 	if [ -s ${WORKDIR}/report ]; then
 		#if there was no single build error
-		rm -rf ${TARGETDIR}/*
-		mv ${WORKDIR}/* $TARGETDIR
-		echo "Files were moved to pub/daily" >> ${TARGETDIR}/report
+		rm -f ${TARGETDIR}*
+		mv ${WORKDIR}/*.zip ${WORKDIR}/index.html $TARGETDIR
+		echo "Files were moved to pub/daily" >> ${WORKDIR}/report
 	else
 		#if there were errors
-		echo "Some errors occured during building fw. Not swapping daily" >> ${TARGETDIR}/report
+		echo "Some errors occured during building fw. Not swapping daily" >> ${WORKDIR}/report
 	fi
-	send_mail ${TARGETDIR}/report
-	rm -f ${TARGETDIR}/report
+	send_mail
 else
 	# if fetching failed
 	echo "Fetching build files failed!" > ${WORKDIR}/report
