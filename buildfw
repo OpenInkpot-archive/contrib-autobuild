@@ -12,14 +12,18 @@ build_all() {
 
         buildroot/enter sh -c 'sudo apt-get install --yes --force-yes oi-build-firmware'
 
-        buildroot/enter sh -c "build-fw n516 --variant=azbooka $1"
-        buildroot/enter sh -c "build-fw n516 $1"
-        buildroot/enter sh -c "build-fw v3 $1"  
-        buildroot/enter sh -c "build-fw v3 --mode=live $1"
-        buildroot/enter sh -c "build-fw v3 --mode=nfsroot $1"
-        buildroot/enter sh -c "build-fw v3ext $1"
+        buildroot/enter sh -c "mkdir -p output/${VERSION}"
+        REPORT="output/${VERSION}/report"
+        buildroot/enter sh -c "touch ${REPORT}"
 
-        cd buildroot/build/output/*
+        buildroot/enter sh -c "build-fw n516 --variant=azbooka $1" || echo "azbooka failed" >> $REPORT
+        buildroot/enter sh -c "build-fw n516 $1" || echo "n516 failed" >> $REPORT
+        buildroot/enter sh -c "build-fw v3 $1" || echo "v3 failed" >> $REPORT
+        buildroot/enter sh -c "build-fw v3 --mode=live $1" || echo "v3 live failed" >> $REPORT
+        buildroot/enter sh -c "build-fw v3 --mode=nfsroot $1" || echo "v3 nfsroot failed" >> $REPORT
+        buildroot/enter sh -c "build-fw v3ext $1" || echo "v3ext failed" >> $REPORT
+
+        cd buildroot/build/output/${VERSION}
         md5sum oi-* azbooka* > MD5SUMS
         sha1sum oi-* azbooka* > SHA1SUMS
         cd $WORKDIR
@@ -31,7 +35,8 @@ build_all() {
 }
 
 WORKDIR=$(mktemp -d  $HOME/buildfw.XXXXXXXX)
+VERSION=$(date +%Y%m%d)
 
-: > report
-build_all $1 > report 2>&1
-mv report ~/output/
+build_all $1 > log 2>&1
+mv log ~/output/${VERSION}/
+
