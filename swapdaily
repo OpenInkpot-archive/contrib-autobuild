@@ -64,6 +64,7 @@ if [ -a ${WORKDIR}/report ]; then
 		echo "Some errors occured during building fw. Not swapping daily" >> ${WORKDIR}/report
 	else
 		#if there was no single build error
+		create_html
 		rm -f ${TARGETDIR}*
 		mv ${WORKDIR}/*.zip ${WORKDIR}/index.html $TARGETDIR
 		echo "Files were moved to pub/daily" >> ${WORKDIR}/report
