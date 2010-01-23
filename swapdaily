@@ -60,13 +60,13 @@ ssh ab rm -rf output
 if [ -a ${WORKDIR}/report ]; then
 	# if something was fetched at all
 	if [ -s ${WORKDIR}/report ]; then
+		#if there were errors
+		echo "Some errors occured during building fw. Not swapping daily" >> ${WORKDIR}/report
+	else
 		#if there was no single build error
 		rm -f ${TARGETDIR}*
 		mv ${WORKDIR}/*.zip ${WORKDIR}/index.html $TARGETDIR
 		echo "Files were moved to pub/daily" >> ${WORKDIR}/report
-	else
-		#if there were errors
-		echo "Some errors occured during building fw. Not swapping daily" >> ${WORKDIR}/report
 	fi
 	send_mail
 else
