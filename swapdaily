@@ -43,7 +43,7 @@ table_group(){
 }
 
 table_rows() {
-	for row in $(ls ${1}*.zip); do
+	for row in $(ls ${1}*.zip ${1}*.bz2); do
 		echo -n "<tr><td><a href=\"${row}\">${row}</a></td><td>" >> index.html
 		stat -c %s ${row} >> index.html
 		echo -n "</td><td>" >> index.html
@@ -66,7 +66,7 @@ if [ -a ${WORKDIR}/report ]; then
 		#if there was no single build error
 		create_html
 		rm -f ${TARGETDIR}*
-		mv ${WORKDIR}/*.zip ${WORKDIR}/index.html $TARGETDIR
+		mv ${WORKDIR}/*.zip ${WORKDIR}/*.bz2 ${WORKDIR}/index.html $TARGETDIR
 		echo "Files were moved to pub/daily" >> ${WORKDIR}/report
 	fi
 	send_mail
