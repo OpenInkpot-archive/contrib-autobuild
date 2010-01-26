@@ -20,8 +20,79 @@ cat <<EOF >index.html
 <head>
 <title>OpenInkpot's daily builds</title>
 <meta http-equiv="Content-type" content="text/html;charset=UTF-8">
+<style TYPE="text/css">
+<!--
+body {
+font-family: sans-serif;
+background: white;
+color: #333 }
+
+a {
+color: blue;
+text-decoration: none;
+}
+
+a:hover {
+text-decoration: underline;
+}
+
+table#header {
+width: 100%;
+}
+
+table#header td.logo {
+width: 96px;
+border: 0px;
+}
+
+table#header td.main {
+font-size: 250%;
+padding-left: 10px;
+white-space: nowrap;
+}
+
+table#header td.sub {
+color: #777;
+border-top: solid 1px #ccc;
+padding-left: 10px;
+}
+
+table.fw {
+font-weight: normal;
+font-size: 12px;
+color: #fff;
+border-collapse: collapse;
+border-spacing: 10px;
+}
+
+table.fw td {
+background-color: #fff;
+color: #000;
+padding: 4px;
+text-align: left;
+border: 1px solid #fff;
+border-bottom: 1px solid #bbb;
+}
+
+table.fw th {
+background-color: #9e1b3c;
+border: 2px solid white;
+}
+
+table.fw tr:hover td {
+color: blue;
+}
+
+img {
+border: 0px;
+}
+
+-->
+</style>
 </head>
-<h1>OpenInkpot's daily builds</h1>
+<table id='header'> 
+<tr><td class='logo' rowspan='2'><a href='http://openinkpot.org'><img src='http://openinkpot.org/chrome/logo-half-border.png' alt='OpenInkpot logo'></a></td><td class='main'>OpenInkpot's daily builds</td></tr> 
+<tr><td class='sub'>your source of fresh firmware upgrades</td></tr></table>
 EOF
 	echo "<h2>Hanvon n516</h2>" >> index.html
 	table_group oi-hanvon-n516
@@ -31,7 +102,7 @@ EOF
 }
 
 table_group(){
-	echo "<table border=\"1\">" >> index.html
+	echo "<table class='fw'>" >> index.html
 	echo "<tr><th>name</th><th>size</th><th>md5</th><th>sha1</th></tr>" >> index.html
 	table_rows $1
 	if [ "$1" == "oi-hanvon-n516" ]; then
